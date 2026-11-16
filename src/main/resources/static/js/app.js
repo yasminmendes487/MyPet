@@ -30,7 +30,7 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 });
 
 // ==========================================
-// 2. UTILITÁRIOS DE DATA E ROTINA
+// 2. UTILITÁRIOS DE DATA, IDADE E ROTINA
 // ==========================================
 function somarDiasISO(dataISO, dias) {
   if (!dataISO || !dias) return '';
@@ -76,6 +76,29 @@ function formatarDataBR(iso) {
   return `${dia}/${mes}/${ano}`;
 }
 
+function calcularIdade(dataNascimentoISO) {
+  if (!dataNascimentoISO) return 'Idade não informada';
+  const nasc = new Date(dataNascimentoISO + 'T00:00:00');
+  const hoje = new Date();
+
+  let anos = hoje.getFullYear() - nasc.getFullYear();
+  let meses = hoje.getMonth() - nasc.getMonth();
+
+  if (hoje.getDate() < nasc.getDate()) {
+    meses--;
+  }
+  if (meses < 0) {
+    anos--;
+    meses += 12;
+  }
+
+  if (anos < 0) return 'Recém-nascido';
+  if (anos === 0 && meses === 0) return 'Menos de 1 mês';
+  if (anos === 0) return `${meses} ${meses === 1 ? 'mês' : 'meses'}`;
+  if (meses === 0) return `${anos} ${anos === 1 ? 'ano' : 'anos'}`;
+  return `${anos} ${anos === 1 ? 'ano' : 'anos'} e ${meses} ${meses === 1 ? 'mês' : 'meses'}`;
+}
+
 // ==========================================
 // 3. COMUNICAÇÃO COM API REST JAVA
 // ==========================================
@@ -85,15 +108,17 @@ async function carregarPets() {
     if (!res.ok) throw new Error('API indisponível');
     pets = await res.json();
   } catch (err) {
+    console.error('Erro ao buscar pets:', err);
     pets = JSON.parse(localStorage.getItem('mypet_fallback')) || [];
   }
 
+  // Se o banco H2 ainda estiver vazio, cria o Toffee inicial e já salva no H2
   if (pets.length === 0) {
-    pets = [{
-      id: Date.now(),
+    const toffeeInicial = {
+      id: null,
       nome: 'Toffee',
       raca: 'SRD',
-      idade: '3 anos',
+      dataNascimento: '2023-11-15',
       pesoAtual: '6 kg',
       tipoPelagem: 'Curta',
       telefoneVeterinario: '',
@@ -103,7 +128,10 @@ async function carregarPets() {
       comportamento: '',
       fotoUrl: FOTO_PADRAO,
       cuidados: []
-    }];
+    };
+    pets = [toffeeInicial];
+    await persistirPet(toffeeInicial);
+    return;
   }
 
   if (!petAtualId || !pets.some(p => p.id === petAtualId)) {
@@ -122,12 +150,27 @@ async function persistirPet(pet) {
     });
     if (res.ok) {
       const salvo = await res.json();
-      pet.id = salvo.id;
       petAtualId = salvo.id;
-      await carregarPets();
+      const listaRes = await fetch(API_URL);
+      if (listaRes.ok) {
+        pets = await listaRes.json();
+      }
+      renderizarTudo();
       return;
+    } else {
+      const erroTxt = await res.text();
+      console.error('Erro HTTP ao salvar pet:', res.status, erroTxt);
+      alert(`Erro no servidor ao salvar (HTTP ${res.status}). Verifique o terminal do VS Code.`);
     }
-  } catch (_) {}
+  } catch (err) {
+    console.error('Falha de rede ao salvar pet:', err);
+    // Fallback local se o servidor Java estiver desligado
+    if (!pet.id) {
+      pet.id = Date.now();
+      pets.push(pet);
+    }
+    petAtualId = pet.id;
+  }
   localStorage.setItem('mypet_fallback', JSON.stringify(pets));
   renderizarTudo();
 }
@@ -164,15 +207,20 @@ function renderizarTudo() {
   });
 
   const pet = getPetAtual();
+  if (!pet) return;
+
+  const idadeTexto = calcularIdade(pet.dataNascimento);
+
   document.getElementById('hero-nome').textContent = pet.nome || 'Sem nome';
-  document.getElementById('hero-sub').textContent = `${pet.raca || 'Raça não informada'} • ${pet.idade || 'Idade não informada'}`;
+  document.getElementById('hero-sub').textContent = `${pet.raca || 'Raça não informada'} • ${idadeTexto}`;
   document.getElementById('hero-foto').src = pet.fotoUrl || FOTO_PADRAO;
   document.getElementById('preview-foto').src = pet.fotoUrl || FOTO_PADRAO;
 
   // Ficha
   document.getElementById('nome').value = pet.nome || '';
   document.getElementById('raca').value = pet.raca || '';
-  document.getElementById('idade').value = pet.idade || '';
+  document.getElementById('dataNascimento').value = pet.dataNascimento || '';
+  document.getElementById('idade').value = pet.dataNascimento ? idadeTexto : '';
   document.getElementById('pesoAtual').value = pet.pesoAtual || '';
   document.getElementById('tipoPelagem').value = pet.tipoPelagem || '';
   document.getElementById('telefoneVeterinario').value = pet.telefoneVeterinario || '';
@@ -215,7 +263,7 @@ function renderizarTudo() {
       `;
     }).join('');
 
-    // Botão "✓ Feito hoje" renova a data para hoje e recalcula a próxima
+    // Botão "✓ Feito hoje"
     listaEl.querySelectorAll('.btn-feito-hoje').forEach(btn => {
       btn.addEventListener('click', async () => {
         const idx = Number(btn.dataset.index);
@@ -248,7 +296,7 @@ function renderizarTudo() {
   document.getElementById('resumo-conteudo').textContent =
 `🐾 *${pet.nome || 'Pet'}*
 Raça: ${pet.raca || 'não informada'}
-Idade: ${pet.idade || 'não informada'}
+Nascimento: ${pet.dataNascimento ? `${formatarDataBR(pet.dataNascimento)} (${idadeTexto})` : 'não informado'}
 Peso: ${pet.pesoAtual || 'não informado'}
 Pelagem: ${pet.tipoPelagem || 'não informada'}
 Alimentação: ${pet.alimentacao || 'não informada'}
@@ -262,6 +310,15 @@ Observações: ${pet.comportamento || 'nenhuma'}`;
 // 5. EVENTOS DE INTERAÇÃO
 // ==========================================
 
+// Atualiza automaticamente o input "Idade" ao escolher a Data de Nascimento
+document.getElementById('dataNascimento').addEventListener('change', (e) => {
+  document.getElementById('idade').value = e.target.value ? calcularIdade(e.target.value) : '';
+});
+
+document.getElementById('novo-nascimento').addEventListener('change', (e) => {
+  document.getElementById('novo-idade').value = e.target.value ? calcularIdade(e.target.value) : '';
+});
+
 // Toggle Rotina de Cuidados
 document.getElementById('btn-toggle-rotina').addEventListener('click', () => {
   const grid = document.getElementById('rotina-conteudo');
@@ -270,7 +327,7 @@ document.getElementById('btn-toggle-rotina').addEventListener('click', () => {
   seta.textContent = grid.classList.contains('oculto') ? '▼' : '▲';
 });
 
-// Inputs de Intervalo (365, 90, 30, 15, 60 dias)
+// Inputs de Intervalo
 Object.keys(intervalosRotina).forEach(tipo => {
   const input = document.getElementById(`int-${tipo}`);
   if (input) {
@@ -291,6 +348,7 @@ const modalNovoPet = document.getElementById('modal-novo-pet');
 
 document.getElementById('btn-abrir-modal').addEventListener('click', () => {
   document.getElementById('form-novo-pet').reset();
+  document.getElementById('novo-idade').value = '';
   modalNovoPet.showModal();
 });
 
@@ -304,10 +362,10 @@ document.getElementById('form-novo-pet').addEventListener('submit', async (e) =>
 
   const criarPet = async (fotoBase64) => {
     const novo = {
-      id: Date.now(),
+      id: null,
       nome: document.getElementById('novo-nome').value,
       raca: document.getElementById('novo-raca').value,
-      idade: document.getElementById('novo-idade').value,
+      dataNascimento: document.getElementById('novo-nascimento').value,
       pesoAtual: '',
       tipoPelagem: '',
       telefoneVeterinario: '',
@@ -318,8 +376,6 @@ document.getElementById('form-novo-pet').addEventListener('submit', async (e) =>
       fotoUrl: fotoBase64 || FOTO_PADRAO,
       cuidados: []
     };
-    pets.push(novo);
-    petAtualId = novo.id;
     modalNovoPet.close();
     await persistirPet(novo);
   };
@@ -361,7 +417,7 @@ document.getElementById('form-ficha').addEventListener('submit', async (e) => {
   const pet = getPetAtual();
   pet.nome = document.getElementById('nome').value;
   pet.raca = document.getElementById('raca').value;
-  pet.idade = document.getElementById('idade').value;
+  pet.dataNascimento = document.getElementById('dataNascimento').value;
   pet.pesoAtual = document.getElementById('pesoAtual').value;
   pet.tipoPelagem = document.getElementById('tipoPelagem').value;
   pet.telefoneVeterinario = document.getElementById('telefoneVeterinario').value;
@@ -404,6 +460,8 @@ document.getElementById('btn-gerar-ia').addEventListener('click', () => {
     return;
   }
 
+  const idadeTexto = calcularIdade(pet.dataNascimento);
+
   const historicoCuidados = (pet.cuidados && pet.cuidados.length > 0)
     ? pet.cuidados.map(c => `- ${c.tipo} (${c.descricao || 'geral'}): realizado em ${formatarDataBR(c.data)}`).join('\n')
     : '- Nenhum cuidado preventivo registrado recentemente.';
@@ -412,10 +470,10 @@ document.getElementById('btn-gerar-ia').addEventListener('click', () => {
 `🩺 *RELATÓRIO PRÉ-CONSULTA — ${pet.nome.toUpperCase()}*
 
 📋 *Identificação:*
-• Raça: ${pet.raca || 'Não informada'} | Idade: ${pet.idade || 'Não informada'} | Peso: ${pet.pesoAtual || 'Não informado'}
-• Alimentação habitual: ${pet.alimentacao || 'Não informada'}
-• Alergias conhecidas: ${pet.alergias || 'Nenhuma relatada'}
-• Medicações contínuas: ${pet.medicamentos || 'Nenhuma'}
+- Raça: ${pet.raca || 'Não informada'} | Idade: ${idadeTexto} | Peso: ${pet.pesoAtual || 'Não informado'}
+- Alimentação habitual: ${pet.alimentacao || 'Não informada'}
+- Alergias conhecidas: ${pet.alergias || 'Nenhuma relatada'}
+- Medicações contínuas: ${pet.medicamentos || 'Nenhuma'}
 
 ⚠️ *Motivo da consulta / Sintomas relatados pelo tutor:*
 "${obsVet}"

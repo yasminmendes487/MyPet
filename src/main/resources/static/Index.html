@@ -125,8 +125,12 @@
                 <input type="text" id="raca" placeholder="Ex: SRD" />
               </div>
               <div>
+                <label for="dataNascimento">Data de nascimento</label>
+                <input type="date" id="dataNascimento" />
+              </div>
+              <div>
                 <label for="idade">Idade</label>
-                <input type="text" id="idade" placeholder="Ex: 3 anos" />
+                <input type="text" id="idade" placeholder="" readonly style="background-color: #f3f4f6; color: #374151; cursor: default;" />
               </div>
               <div>
                 <label for="pesoAtual">Peso (kg)</label>
@@ -136,7 +140,7 @@
                 <label for="tipoPelagem">Tipo de pelagem</label>
                 <input type="text" id="tipoPelagem" placeholder="Ex: Curta, caramelo" />
               </div>
-              <div>
+              <div class="full">
                 <label for="telefoneVeterinario">Telefone do veterinário</label>
                 <input type="text" id="telefoneVeterinario" placeholder="Ex: (67) 99999-9999" />
               </div>
@@ -202,21 +206,25 @@
 
   <!-- Modal para Cadastrar Novo Pet -->
   <dialog id="modal-novo-pet" class="modal-pet">
-    <form id="form-novo-pet" method="dialog">
+    <form id="form-novo-pet">
       <h3>🐾 Adicionar novo pet</h3>
       <div class="modal-fields">
         <div>
           <label for="novo-nome">Nome do pet *</label>
           <input type="text" id="novo-nome" placeholder="Ex: Mel" required />
         </div>
+        <div>
+          <label for="novo-raca">Raça</label>
+          <input type="text" id="novo-raca" placeholder="Ex: Poodle" />
+        </div>
         <div class="modal-row">
           <div>
-            <label for="novo-raca">Raça</label>
-            <input type="text" id="novo-raca" placeholder="Ex: Poodle" />
+            <label for="novo-nascimento">Data de nascimento</label>
+            <input type="date" id="novo-nascimento" />
           </div>
           <div>
             <label for="novo-idade">Idade</label>
-            <input type="text" id="novo-idade" placeholder="Ex: 2 anos" />
+            <input type="text" id="novo-idade" placeholder="Automática" readonly style="background-color: #f3f4f6; color: #374151; cursor: default;" />
           </div>
         </div>
         <div>

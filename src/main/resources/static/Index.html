@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MyPet 🐾</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <script src="/js/app.js" defer></script>
+</head>
+<body>
+
+  <main class="container">
+    <!-- Barra de Chips para alternar ou adicionar Pets -->
+    <section class="pets-bar" aria-label="Meus animais">
+      <div id="pets-chips" class="pets-chips"></div>
+      <button type="button" class="btn-add-pet" id="btn-abrir-modal">+ Novo pet</button>
+    </section>
+
+    <!-- Cabeçalho do Pet Selecionado -->
+    <header class="pet-hero">
+      <div class="pet-hero-left">
+        <img id="hero-foto" class="hero-foto" src="https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&w=300&q=80" alt="Foto do Pet" />
+        <div>
+          <div class="hero-top-row">
+            <span class="brand-tag">🐾 MYPET</span>
+            <button type="button" class="btn-excluir-discreto" id="btn-excluir-pet" title="Excluir este pet">🗑️ Excluir pet</button>
+          </div>
+          <h1 id="hero-nome">Toffee</h1>
+          <p class="pet-sub" id="hero-sub">SRD • 3 anos</p>
+        </div>
+      </div>
+
+      <div class="status-badges">
+        <span class="badge badge-ok" id="badge-ok">0 Em dia</span>
+        <span class="badge badge-warn" id="badge-warn">0 Vence em breve</span>
+        <span class="badge badge-late" id="badge-late">0 Atrasado</span>
+      </div>
+    </header>
+
+    <!-- Navegação em 4 Abas -->
+    <nav class="tabs" aria-label="Seções do pet">
+      <button type="button" class="tab-btn active" data-tab="cuidados">Cuidados</button>
+      <button type="button" class="tab-btn" data-tab="ficha">Ficha</button>
+      <button type="button" class="tab-btn" data-tab="resumo">Resumo</button>
+      <button type="button" class="tab-btn" data-tab="veterinario">Para O Veterinário</button>
+    </nav>
+
+    <!-- ABA 1: CUIDADOS -->
+    <section id="tab-cuidados" class="tab-content active">
+      <div class="card">
+        <form id="form-cuidado" class="cuidados-form">
+          <div>
+            <label for="cuidado-tipo">Tipo</label>
+            <select id="cuidado-tipo">
+              <option value="Vacina">Vacina</option>
+              <option value="Vermífugo">Vermífugo</option>
+              <option value="Antipulgas">Antipulgas</option>
+              <option value="Banho">Banho</option>
+              <option value="Tosa">Tosa</option>
+            </select>
+          </div>
+          <div>
+            <label for="cuidado-desc">Descrição</label>
+            <input type="text" id="cuidado-desc" placeholder="ex: V10" required />
+          </div>
+          <div>
+            <label for="cuidado-data">Realizada em</label>
+            <input type="date" id="cuidado-data" required />
+          </div>
+          <div>
+            <label for="cuidado-proxima">Próxima</label>
+            <input type="date" id="cuidado-proxima" />
+          </div>
+          <div>
+            <button type="submit" class="btn-primary">Registrar</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Painel Rotina de Cuidados (Intervalos em dias) -->
+      <div class="card rotina-card">
+        <button type="button" class="rotina-toggle" id="btn-toggle-rotina">
+          <span>🔄 <strong>Rotina de cuidados</strong> <span id="rotina-seta">▲</span> — <small>intervalos usados para calcular as próximas datas</small></span>
+        </button>
+
+        <div id="rotina-conteudo" class="rotina-grid">
+          <div>
+            <label for="int-Vacina">Vacina</label>
+            <div class="input-dias"><input type="number" id="int-Vacina" min="1" value="365" /><span>dias</span></div>
+          </div>
+          <div>
+            <label for="int-Vermífugo">Vermífugo</label>
+            <div class="input-dias"><input type="number" id="int-Vermífugo" min="1" value="90" /><span>dias</span></div>
+          </div>
+          <div>
+            <label for="int-Antipulgas">Antipulgas</label>
+            <div class="input-dias"><input type="number" id="int-Antipulgas" min="1" value="30" /><span>dias</span></div>
+          </div>
+          <div>
+            <label for="int-Banho">Banho</label>
+            <div class="input-dias"><input type="number" id="int-Banho" min="1" value="15" /><span>dias</span></div>
+          </div>
+          <div>
+            <label for="int-Tosa">Tosa</label>
+            <div class="input-dias"><input type="number" id="int-Tosa" min="1" value="60" /><span>dias</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="lista-cuidados" class="lista-cuidados"></div>
+    </section>
+
+    <!-- ABA 2: FICHA -->
+    <section id="tab-ficha" class="tab-content">
+      <div class="card">
+        <form id="form-ficha">
+          <div class="ficha-layout">
+            <div class="ficha-grid">
+              <div>
+                <label for="nome">Nome *</label>
+                <input type="text" id="nome" placeholder="Ex: Toffee" required />
+              </div>
+              <div>
+                <label for="raca">Raça</label>
+                <input type="text" id="raca" placeholder="Ex: SRD" />
+              </div>
+              <div>
+                <label for="idade">Idade</label>
+                <input type="text" id="idade" placeholder="Ex: 3 anos" />
+              </div>
+              <div>
+                <label for="pesoAtual">Peso (kg)</label>
+                <input type="text" id="pesoAtual" placeholder="Ex: 6 kg" />
+              </div>
+              <div>
+                <label for="tipoPelagem">Tipo de pelagem</label>
+                <input type="text" id="tipoPelagem" placeholder="Ex: Curta, caramelo" />
+              </div>
+              <div>
+                <label for="telefoneVeterinario">Telefone do veterinário</label>
+                <input type="text" id="telefoneVeterinario" placeholder="Ex: (67) 99999-9999" />
+              </div>
+              <div class="full">
+                <label for="alimentacao">Alimentação diária</label>
+                <textarea id="alimentacao" rows="2" placeholder="Ex: 120g de ração 2x ao dia"></textarea>
+              </div>
+              <div class="full">
+                <label for="alergias">Alergias</label>
+                <textarea id="alergias" rows="2" placeholder="Ex: Nenhuma"></textarea>
+              </div>
+              <div class="full">
+                <label for="medicamentos">Medicamentos em uso</label>
+                <textarea id="medicamentos" rows="2" placeholder="Ex: Nenhum"></textarea>
+              </div>
+              <div class="full">
+                <label for="comportamento">Observações de comportamento</label>
+                <textarea id="comportamento" rows="2" placeholder="Ex: Dócil, brincalhão..."></textarea>
+              </div>
+            </div>
+
+            <div class="foto-box">
+              <img id="preview-foto" src="https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&w=300&q=80" alt="Foto do Animal" />
+              <label for="input-foto" class="btn-foto">📷 Trocar Foto</label>
+              <input type="file" id="input-foto" accept="image/*" />
+            </div>
+          </div>
+
+          <div class="ficha-footer">
+            <button type="submit" class="btn-primary btn-full">Salvar ficha</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- ABA 3: RESUMO -->
+    <section id="tab-resumo" class="tab-content">
+      <div class="card">
+        <div id="resumo-conteudo" class="resumo-texto"></div>
+        <button type="button" class="btn-primary" id="btn-copiar">Copiar Resumo</button>
+      </div>
+    </section>
+
+    <!-- ABA 4: PARA O VETERINÁRIO -->
+    <section id="tab-veterinario" class="tab-content">
+      <div class="card">
+        <label for="vet-observacoes">Observações sobre o cão</label>
+        <textarea id="vet-observacoes" rows="4" placeholder="ex: há 3 dias está comendo menos, vomitou duas vezes ontem, coça muito a orelha esquerda..."></textarea>
+
+        <div class="vet-actions">
+          <button type="button" class="btn-ia" id="btn-gerar-ia">✨ Gerar resumo com IA</button>
+        </div>
+
+        <p class="vet-aviso">O resumo é gerado por IA a partir da ficha e das suas observações. Revise antes de enviar; não substitui a avaliação veterinária.</p>
+
+        <div id="vet-resultado-box" class="vet-resultado-box">
+          <div id="vet-resultado-texto" class="resumo-texto"></div>
+          <button type="button" class="btn-primary" id="btn-copiar-vet">Copiar Relatório Clínico</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal para Cadastrar Novo Pet -->
+  <dialog id="modal-novo-pet" class="modal-pet">
+    <form id="form-novo-pet" method="dialog">
+      <h3>🐾 Adicionar novo pet</h3>
+      <div class="modal-fields">
+        <div>
+          <label for="novo-nome">Nome do pet *</label>
+          <input type="text" id="novo-nome" placeholder="Ex: Mel" required />
+        </div>
+        <div class="modal-row">
+          <div>
+            <label for="novo-raca">Raça</label>
+            <input type="text" id="novo-raca" placeholder="Ex: Poodle" />
+          </div>
+          <div>
+            <label for="novo-idade">Idade</label>
+            <input type="text" id="novo-idade" placeholder="Ex: 2 anos" />
+          </div>
+        </div>
+        <div>
+          <label for="novo-foto">Foto (opcional)</label>
+          <input type="file" id="novo-foto" accept="image/*" />
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-cancelar" id="btn-fechar-modal">Cancelar</button>
+        <button type="submit" class="btn-primary">Cadastrar Pet</button>
+      </div>
+    </form>
+  </dialog>
+
+</body>
+</html>

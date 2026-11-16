@@ -27,18 +27,6 @@ Uma aplicação web (**MyPet**) com back-end em Java (Spring Boot) e front-end r
 - **Relatório Pré-Consulta para o Veterinário:** Consolidação automática dos dados clínicos da ficha, histórico recente de cuidados e sintomas relatados pelo tutor em um relatório estruturado pronto para copiar e enviar ao veterinário.
 - **Persistência em Banco de Dados:** Armazenamento local persistente em arquivo via **Spring Data JPA** e **H2 Database** (`jdbc:h2:file:./data/mypetdb`), mantendo os dados salvos entre execuções sem necessidade de configurações externas.
 
----
-
-## 🤖 Uso de Inteligência Artificial no Desenvolvimento
-
-A Inteligência Artificial foi utilizada como parceira de desenvolvimento ao longo de todo o ciclo do projeto para:
-
-- Estruturar a arquitetura da API REST em camadas (`model`, `repository`, `controller`) com Java e Spring Boot;
-- Modelar o relacionamento JPA entre `Pet` e `Cuidado` com persistência em arquivo H2;
-- Implementar a lógica de front-end (cálculo dinâmico de idade, contagem regressiva de prazos de vencimento, manipulação de estado e integração assíncrona via `fetch`);
-- Depurar erros de mapeamento, pacotes Java, rotas REST e configuração de ambiente durante os testes.
-
----
 
 ## 🛠️ Tecnologias Utilizadas
 

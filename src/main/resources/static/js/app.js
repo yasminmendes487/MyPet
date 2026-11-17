@@ -1,10 +1,10 @@
 const API_URL = '/api/pets';
-const FOTO_PADRAO = 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&w=300&q=80';
+const FOTO_PADRAO = '/img/toffee.jpg';
 
 let pets = [];
 let petAtualId = null;
 
-// Intervalos padrão de rotina (em dias)
+
 let intervalosRotina = JSON.parse(localStorage.getItem('mypet_rotina')) || {
   'Vacina': 365,
   'Vermífugo': 90,
@@ -16,10 +16,6 @@ let intervalosRotina = JSON.parse(localStorage.getItem('mypet_rotina')) || {
 function getPetAtual() {
   return pets.find(p => p.id === petAtualId) || pets[0];
 }
-
-// ==========================================
-// 1. NAVEGAÇÃO EM ABAS
-// ==========================================
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -29,9 +25,6 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
   });
 });
 
-// ==========================================
-// 2. UTILITÁRIOS DE DATA, IDADE E ROTINA
-// ==========================================
 function somarDiasISO(dataISO, dias) {
   if (!dataISO || !dias) return '';
   const data = new Date(dataISO + 'T00:00:00');
@@ -99,9 +92,8 @@ function calcularIdade(dataNascimentoISO) {
   return `${anos} ${anos === 1 ? 'ano' : 'anos'} e ${meses} ${meses === 1 ? 'mês' : 'meses'}`;
 }
 
-// ==========================================
-// 3. COMUNICAÇÃO COM API REST JAVA
-// ==========================================
+
+//COMUNICAÇÃO COM API REST JAVA
 async function carregarPets() {
   try {
     const res = await fetch(API_URL);
@@ -112,30 +104,8 @@ async function carregarPets() {
     pets = JSON.parse(localStorage.getItem('mypet_fallback')) || [];
   }
 
-  // Se o banco H2 ainda estiver vazio, cria o Toffee inicial e já salva no H2
-  if (pets.length === 0) {
-    const toffeeInicial = {
-      id: null,
-      nome: 'Toffee',
-      raca: 'SRD',
-      dataNascimento: '2023-11-15',
-      pesoAtual: '6 kg',
-      tipoPelagem: 'Curta',
-      telefoneVeterinario: '',
-      alimentacao: '',
-      alergias: '',
-      medicamentos: '',
-      comportamento: '',
-      fotoUrl: FOTO_PADRAO,
-      cuidados: []
-    };
-    pets = [toffeeInicial];
-    await persistirPet(toffeeInicial);
-    return;
-  }
-
   if (!petAtualId || !pets.some(p => p.id === petAtualId)) {
-    petAtualId = pets[0].id;
+    petAtualId = pets[0]?.id || null;
   }
 
   renderizarTudo();
@@ -164,7 +134,6 @@ async function persistirPet(pet) {
     }
   } catch (err) {
     console.error('Falha de rede ao salvar pet:', err);
-    // Fallback local se o servidor Java estiver desligado
     if (!pet.id) {
       pet.id = Date.now();
       pets.push(pet);
@@ -185,9 +154,9 @@ async function excluirPetNoServidor(id) {
   await carregarPets();
 }
 
-// ==========================================
-// 4. RENDERIZAÇÃO DA TELA
-// ==========================================
+
+// RENDERIZAÇÃO DA TELA
+
 function renderizarTudo() {
   // Chips de Pets
   const chipsContainer = document.getElementById('pets-chips');
@@ -306,11 +275,8 @@ Veterinário: ${pet.telefoneVeterinario || 'não informado'}
 Observações: ${pet.comportamento || 'nenhuma'}`;
 }
 
-// ==========================================
-// 5. EVENTOS DE INTERAÇÃO
-// ==========================================
 
-// Atualiza automaticamente o input "Idade" ao escolher a Data de Nascimento
+
 document.getElementById('dataNascimento').addEventListener('change', (e) => {
   document.getElementById('idade').value = e.target.value ? calcularIdade(e.target.value) : '';
 });
@@ -450,7 +416,7 @@ document.getElementById('btn-copiar').addEventListener('click', () => {
   alert('Resumo copiado!');
 });
 
-// Aba 4: Gerar Resumo Clínico para o Veterinário
+// Resumo Clínico para o Veterinário
 document.getElementById('btn-gerar-ia').addEventListener('click', () => {
   const pet = getPetAtual();
   const obsVet = document.getElementById('vet-observacoes').value.trim();
@@ -491,7 +457,6 @@ document.getElementById('btn-copiar-vet').addEventListener('click', () => {
   alert('Relatório clínico copiado!');
 });
 
-// Inicialização
 document.getElementById('cuidado-data').valueAsDate = new Date();
 atualizarDataProximaAutomatica();
 carregarPets();

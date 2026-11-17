@@ -4,7 +4,7 @@ Aplicação web full-stack desenvolvida para centralizar o histórico de saúde,
 
 ---
 
-## 📋 Proposta do Projeto
+## 📋 Proposta
 
 ### 1. Qual é o problema?
 Tutores de cães frequentemente perdem o controle das datas de reaplicação de vacinas, vermífugos, antipulgas e intervalos de banho e tosa, além de precisarem reunir de cabeça informações essenciais (idade, peso, raça, alimentação, alergias e medicações) durante consultas veterinárias ou ao deixar o pet sob os cuidados de outra pessoa.
@@ -12,30 +12,21 @@ Tutores de cães frequentemente perdem o controle das datas de reaplicação de 
 ### 2. Para quem é?
 Tutores de cães que desejam centralizar o histórico de saúde, estética e rotina de um ou mais pets em um único lugar, com alertas visuais de vencimento.
 
-### 3. Solução em uma frase
+### 3. Qual é a minha solução, em uma frase?
 Uma aplicação web (**MyPet**) com back-end em Java (Spring Boot) e front-end responsivo que centraliza a ficha completa de múltiplos cães, calcula automaticamente a idade a partir da data de nascimento e gerencia os alertas de vencimento de vacinas, medicamentos, banho e tosa.
 
----
-
-## ✨ Funcionalidades Implementadas
-
-- **Gerenciamento de Múltiplos Pets:** Cadastro, alternância rápida via barra de seleção (chips) e exclusão de perfis individuais, com suporte a upload de foto personalizada.
-- **Ficha Completa com Idade Automática:** Registro e edição de nome, raça, data de nascimento (com cálculo automático em tempo real da idade em anos e meses), peso atual, tipo de pelagem, alimentação diária, alergias, medicamentos em uso, observações de comportamento e telefone do veterinário.
-- **Controle de Saúde e Estética:** Registro de cuidados (**Vacina**, **Vermífugo**, **Antipulgas**, **Banho** e **Tosa**) com descrição, data de realização, cálculo automático da próxima data com base nos intervalos configuráveis de rotina e atalho **"✓ Feito hoje"** para renovação rápida.
+### 4. O que a primeira versão vai fazer?
+- **Gerenciamento de Múltiplos Pets e Ficha Completa:** Cadastro, alternância rápida e edição de perfis individuais (nome, raça, foto, data de nascimento com cálculo automático de idade, peso, pelagem, alimentação diária, alergias, medicamentos em uso, observações e telefone do veterinário).
+- **Controle de Saúde e Estética:** Registro de vacinas, vermífugos, antipulgas, banho e tosa com cálculo automático da próxima data e atalho **"✓ Feito hoje"** para renovação rápida.
 - **Alertas Inteligentes de Vencimento:** Cálculo dinâmico dos dias restantes para cada cuidado registrado, exibindo contadores e badges de status (**Em dia**, **Vence em breve / Vence hoje** e **Atrasado**).
-- **Cartão Resumo Compartilhável:** Geração automática de um resumo organizado com os dados vitais do pet e botão **"Copiar Resumo"** para envio rápido via WhatsApp.
-- **Relatório Pré-Consulta para o Veterinário:** Consolidação automática dos dados clínicos da ficha, histórico recente de cuidados e sintomas relatados pelo tutor em um relatório estruturado pronto para copiar e enviar ao veterinário.
-- **Persistência em Banco de Dados:** Armazenamento local persistente em arquivo via **Spring Data JPA** e **H2 Database** (`jdbc:h2:file:./data/mypetdb`), mantendo os dados salvos entre execuções sem necessidade de configurações externas.
+- **Cartão Resumo e Relatório Veterinário:** Geração de resumo pronto para copiar e enviar via WhatsApp e relatório clínico pré-consulta para o veterinário.
+- **Persistência em Banco de Dados:** Armazenamento local em arquivo via **Spring Data JPA** e **H2 Database** (`jdbc:h2:file:./data/mypetdb`), mantendo os dados salvos entre execuções.
 
----
-
-## 🤖 Uso de Inteligência Artificial no Desenvolvimento
-
-A Inteligência Artificial foi utilizada como parceira de desenvolvimento ao longo de todo o ciclo do projeto para:
-
+### 5. Como vou usar a IA?
+A Inteligência Artificial foi utilizada como parceira de desenvolvimento ao longo de todo o projeto para:
 - Estruturar a arquitetura da API REST em camadas (`model`, `repository`, `controller`) com Java e Spring Boot;
 - Modelar o relacionamento JPA entre `Pet` e `Cuidado` com persistência em arquivo H2;
-- Implementar a lógica de front-end (cálculo dinâmico de idade, contagem regressiva de prazos de vencimento, manipulação de estado e integração assíncrona via `fetch`);
+- Implementar a lógica de front-end (cálculo dinâmico de idade, contagem regressiva de prazos de vencimento e integração assíncrona via `fetch`);
 - Depurar erros de mapeamento, pacotes Java, rotas REST e configuração de ambiente durante os testes.
 
 ---
@@ -52,7 +43,7 @@ A Inteligência Artificial foi utilizada como parceira de desenvolvimento ao lon
 
 ```text
 MyPet/
-├── data/                                  # Arquivo físico do banco H2 (gerado automaticamente)
+├── data/                                  # Arquivo físico do banco H2 (ignorado no .gitignore)
 │   └── mypetdb.mv.db
 ├── pom.xml                                # Dependências Maven (Web, JPA, H2)
 └── src/main/
